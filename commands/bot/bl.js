@@ -36,20 +36,23 @@ module.exports = {
                     return message.channel.send(`<@${member.id}> est déjà dans la blacklist`);
                 }
 
-                let nmb = 0;
-                let nmbe = 0;
+                let nmb = 0; // Compteur pour le nombre de bans réussis
+                let nmbe = 0; // Compteur pour le nombre de bans échoués
 
-                client.guilds.cache.forEach(g => {
-                    if (g.members.cache.get(member.id)) {
-                        g.members.cache.get(member.id).ban()
-                            .then(() => nmb++)
-                            .catch(err => nmbe++);
+                // Bannir l'utilisateur de tous les serveurs
+                client.guilds.cache.forEach(async (guild) => {
+                    try {
+                        const memberInGuild = await guild.members.fetch(member.id); // Cherche le membre dans le serveur
+                        await memberInGuild.ban(); // Banni le membre
+                        nmb++;
+                    } catch (err) {
+                        nmbe++;
                     }
                 });
 
                 db.set(`blmd_${client.user.id}_${member.id}`, true);
 
-                message.channel.send(`**${member.username}** a été ajouté à la blacklist.\nIl a été **ban** de **${nmb}** serveur(s)\nJe n'ai pas pu le **ban** de ${nmbe} serveur(s)`);
+                message.channel.send(`**${member.username}** a été ajouté à la blacklist.\nIl a été **banni** de **${nmb}** serveur(s)\nJe n'ai pas pu le **bannir** de ${nmbe} serveur(s)`);
             }
 
             // Suppression de la blacklist
@@ -83,15 +86,17 @@ module.exports = {
             setInterval(async () => {
                 let blacklisted = db.all().filter(data => data.ID.startsWith(`blmd_${client.user.id}`));
 
-                blacklisted.forEach(entry => {
+                for (const entry of blacklisted) {
                     let memberID = entry.ID.split('_')[2];
-                    client.guilds.cache.forEach(guild => {
-                        let member = guild.members.cache.get(memberID);
-                        if (member) {
-                            member.ban().catch(err => console.log(`Impossible de bannir ${memberID} dans le serveur ${guild.name}`));
+                    for (const guild of client.guilds.cache.values()) {
+                        try {
+                            const member = await guild.members.fetch(memberID);
+                            await member.ban();
+                        } catch (err) {
+                            console.log(`Impossible de bannir ${memberID} dans le serveur ${guild.name}`);
                         }
-                    });
-                });
+                    }
+                }
             }, 2 * 60 * 60 * 1000); // toutes les 2 heures
 
             // Clear de la blacklist
