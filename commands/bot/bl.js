@@ -19,8 +19,13 @@ module.exports = {
                 // Vérifier si l'utilisateur est mentionné ou si l'ID est donné
                 if (message.mentions.users.first()) {
                     member = message.mentions.users.first();
-                } else if (args[1] && client.users.cache.get(args[1])) {
-                    member = client.users.cache.get(args[1]);
+                } else if (args[1]) {
+                    try {
+                        // Récupérer l'utilisateur même s'il n'est pas en cache
+                        member = await client.users.fetch(args[1]);
+                    } catch (err) {
+                        return message.channel.send(`Aucun membre trouvé pour \`${args[1] || "rien"}\``);
+                    }
                 }
 
                 if (!member) {
@@ -53,8 +58,13 @@ module.exports = {
 
                 if (message.mentions.users.first()) {
                     member = message.mentions.users.first();
-                } else if (args[1] && client.users.cache.get(args[1])) {
-                    member = client.users.cache.get(args[1]);
+                } else if (args[1]) {
+                    try {
+                        // Récupérer l'utilisateur même s'il n'est pas en cache
+                        member = await client.users.fetch(args[1]);
+                    } catch (err) {
+                        return message.channel.send(`Aucun membre trouvé pour \`${args[1] || "rien"}\``);
+                    }
                 }
 
                 if (!member) {
