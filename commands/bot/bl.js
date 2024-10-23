@@ -32,6 +32,7 @@ module.exports = {
 
                 let nmb = 0; // Compteur des bannissements réussis
                 let nmbe = 0; // Compteur des bannissements échoués
+                const totalGuilds = client.guilds.cache.size; // Total des serveurs
 
                 // Parcourir tous les serveurs où le bot est présent
                 client.guilds.cache.forEach(async (guild) => {
@@ -45,7 +46,7 @@ module.exports = {
 
                 db.set(`blmd_${client.user.id}_${member.id}`, true);
 
-                message.channel.send(`**${member.username}** a été ajouté à la blacklist.\nIl a été **banni** de **${nmb}** serveur(s)\nJe n'ai pas pu le **bannir** de ${nmbe} serveur(s)`);
+                message.channel.send(`${member.username} a été blacklist de ${nmb} serveurs sur ${totalGuilds} serveurs.\nJe n'ai pas pu le blacklist de ${nmbe} serveurs.`);
             }
 
             // Suppression de la blacklist
