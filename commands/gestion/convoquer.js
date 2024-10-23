@@ -1,41 +1,35 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const Discord = require('discord.js');
+const db = require('quick.db');
+const { 
+    MessageActionRow, 
+    MessageButton, 
+    MessageMenuOption, 
+    MessageMenu 
+} = require('discord-buttons');
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('convoquer')
-        .setDescription('Permet de convoquer une personne avec un motif, une date/heure et un salon.')
-        .addStringOption(option => 
-            option.setName('id')
-                .setDescription('L\'ID Discord de la personne à convoquer')
-                .setRequired(true))
-        .addStringOption(option => 
-            option.setName('motif')
-                .setDescription('Le message ou motif de la convocation')
-                .setRequired(true))
-        .addStringOption(option => 
-            option.setName('date')
-                .setDescription('La date et l\'heure de la convocation (format: JJ/MM/AAAA HH:MM)')
-                .setRequired(true))
-        .addChannelOption(option =>
-            option.setName('salon')
-                .setDescription('Le salon où la convocation sera annoncée')
-                .setRequired(true)),
-
-    async execute(interaction) {
-        const userId = interaction.options.getString('id');
-        const motif = interaction.options.getString('motif');
-        const date = interaction.options.getString('date');
-        const salon = interaction.options.getChannel('salon');
-        const user = await interaction.client.users.fetch(userId);
-        const commandUser = interaction.user; // L'utilisateur qui a fait la commande
-
-        if (!user) {
-            return interaction.reply({ content: 'Utilisateur introuvable !', ephemeral: true });
+    name: 'convoquer',
+    description: 'Permet de convoquer une personne avec un motif, une date/heure et un salon.',
+    execute: async (client, message, args) => {
+        if (!args[0] || !args[1] || !args[2] || !message.mentions.channels.first()) {
+            return message.reply('Merci de fournir tous les arguments : `+convoquer <IdDiscord> <motif> <date-et-heure> <#salon>`');
         }
 
-        const embed = new EmbedBuilder()
-            .setColor(0xffa500) // Couleur orange pour l'alerte
+        const userId = args[0]; // Récupère l'ID de l'utilisateur convoqué
+        const motif = args[1]; // Le motif de la convocation
+        const date = args[2]; // La date et l'heure de la convocation
+        const salon = message.mentions.channels.first(); // Le salon mentionné
+        const user = await client.users.fetch(userId); // Récupère l'utilisateur convoqué
+
+        if (!user) {
+            return message.reply('Utilisateur introuvable !');
+        }
+
+        const commandUser = message.author; // L'utilisateur qui a fait la commande
+
+        // Création de l'embed
+        const embed = new Discord.MessageEmbed()
+            .setColor(0xffa500) // Couleur orange
             .setTitle('⚠️ • Nouvelle convocation !')
             .setDescription(`<@${userId}>, vous êtes convoqué(e) par <@${commandUser.id}>`)
             .addFields(
@@ -44,14 +38,17 @@ module.exports = {
             )
             .setTimestamp();
 
-        // Envoie le message en MP à la personne convoquée
-        await user.send({ embeds: [embed] }).catch(error => {
+        // Envoie l'embed en message privé à la personne convoquée
+        try {
+            await user.send({ embeds: [embed] });
+        } catch (error) {
             console.log(`Impossible d'envoyer un MP à ${user.tag}.`);
-        });
+        }
 
-        // Envoie le message dans le salon spécifié
+        // Envoie l'embed dans le salon mentionné
         await salon.send({ content: `<@${userId}>, vous êtes convoqué(e) dans le salon vocal le ${date}`, embeds: [embed] });
 
-        await interaction.reply({ content: `Convocation envoyée à ${user.tag} et dans ${salon}.`, ephemeral: true });
+        // Confirme que la convocation a été envoyée
+        message.reply(`Convocation envoyée à <@${userId}> et dans ${salon}.`);
     },
 };
