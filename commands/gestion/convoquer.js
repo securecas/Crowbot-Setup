@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
 const db = require('quick.db');
-const { 
-    MessageActionRow, 
-    MessageButton, 
-    MessageMenuOption, 
-    MessageMenu 
+const {
+	MessageActionRow,
+	MessageButton,
+	MessageMenuOption,
+	MessageMenu
 } = require('discord-buttons');
 
 module.exports = {
@@ -15,40 +15,41 @@ module.exports = {
             return message.reply('Merci de fournir tous les arguments : `+convoquer <IdDiscord> <motif> <date-et-heure> <#salon>`');
         }
 
-        const userId = args[0]; // Récupère l'ID de l'utilisateur convoqué
-        const motif = args[1]; // Le motif de la convocation
-        const date = args[2]; // La date et l'heure de la convocation
-        const salon = message.mentions.channels.first(); // Le salon mentionné
-        const user = await client.users.fetch(userId); // Récupère l'utilisateur convoqué
+        const userId = args[0];
+        const motif = args[1];
+        const date = args[2];
+        const salon = message.mentions.channels.first();
+        const user = await client.users.fetch(userId);
 
         if (!user) {
             return message.reply('Utilisateur introuvable !');
         }
 
-        const commandUser = message.author; // L'utilisateur qui a fait la commande
+        const commandUser = message.author;
 
-        // Création de l'embed
         const embed = new Discord.MessageEmbed()
-            .setColor(0xffa500) // Couleur orange
+            .setColor(0xffa500)
             .setTitle('⚠️ • Nouvelle convocation !')
             .setDescription(`<@${userId}>, vous êtes convoqué(e) par <@${commandUser.id}>`)
             .addFields(
-                { name: 'Voici plus d\'informations :', value: `Tu devras être dans le salon vocal Salle d'attente le : ${date}` },
-                { name: 'Note :', value: 'En cas d\'indisponibilité, veuillez contacter le staff du serveur via ticket support uniquement.' }
+                { name: 'Motif', value: motif },
+                { name: 'Date et heure', value: date },
+                { name: 'Lieu', value: `Tu devras être dans le salon vocal ${salon} à cette date.` }
             )
+            .addField('Note', 'En cas d\'indisponibilité, veuillez contacter le staff du serveur via ticket support uniquement.')
             .setTimestamp();
 
-        // Envoie l'embed en message privé à la personne convoquée
         try {
+            // Envoi du message en MP
             await user.send({ embeds: [embed] });
         } catch (error) {
             console.log(`Impossible d'envoyer un MP à ${user.tag}.`);
         }
 
-        // Envoie l'embed dans le salon mentionné
+        // Envoi du message dans le salon mentionné
         await salon.send({ content: `<@${userId}>, vous êtes convoqué(e) dans le salon vocal le ${date}`, embeds: [embed] });
 
-        // Confirme que la convocation a été envoyée
+        // Confirmation que le message a été envoyé
         message.reply(`Convocation envoyée à <@${userId}> et dans ${salon}.`);
     },
 };
