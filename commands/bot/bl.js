@@ -46,7 +46,7 @@ module.exports = {
 
                 db.set(`blmd_${client.user.id}_${member.id}`, true);
 
-                message.channel.send(`${member.username} a été blacklist de ${nmb} serveurs sur ${totalGuilds} serveurs.\nJe n'ai pas pu le blacklist de ${nmbe} serveurs.`);
+                message.channel.send(`${member.tag} a été blacklist de ${nmb} serveurs sur ${totalGuilds} serveurs.\nJe n'ai pas pu le blacklist de ${nmbe} serveurs.`);
             }
 
             // Suppression de la blacklist
