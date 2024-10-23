@@ -10,7 +10,7 @@ const {
 module.exports = {
     name: 'convoquer',
     description: 'Permet de convoquer une personne avec un motif, une date/heure et un salon.',
-    execute: async (client, message, args) => {
+    run: async (client, message, args) => {
         if (!args[0] || !args[1] || !args[2] || !message.mentions.channels.first()) {
             return message.reply('Merci de fournir tous les arguments : `+convoquer <IdDiscord> <motif> <date-et-heure> <#salon>`');
         }
