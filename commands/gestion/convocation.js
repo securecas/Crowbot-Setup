@@ -7,9 +7,6 @@
         aliases: [],
     
         run: async (client, message, args, prefix, color) => {
-            // Supprime le message de commande
-            message.delete();
-    
             // Vérification des permissions de l'utilisateur
             let perm = "";
             message.member.roles.cache.forEach(role => {
@@ -28,12 +25,12 @@
                 const lieuId = args[3]?.replace(/[<#>]/g, ''); // Nettoie l'ID du salon
     
                 if (!raison || !date || !lieuId) {
-                    return message.channel.send("Format incorrect. Veuillez fournir une raison, une date et un lieu pour la convocation.");
+                    return message.channel.send("Format incorrect. <@user> <raison> <date> <#lieu>");
                 }
     
                 // Création de l'embed de convocation
                 const embed = new Discord.MessageEmbed()
-                    .setColor(color || '#0099ff')
+                    .setColor("#fffff")
                     .setTitle("🔔 · Nouvelle Convocation")
                     .setDescription(`Vous êtes **convoqué** par <@${message.author.id}>. Voici **quelques informations supplémentaires sur votre convocation** :\n\n> **Raison :** ${raison}\n> **Date :** ${date}\n> **Lieu :** <#${lieuId}>\n\nEn cas **d’indisponibilité**, veuillez contacter le staff du serveur via ticket support **uniquement**.`);
     
@@ -43,9 +40,7 @@
                     embeds: [embed] 
                 }).then(() => {
                     // Message de confirmation envoyé à l'auteur de la commande
-                    message.author.send("La convocation a bien été envoyée.").catch(() => {
-                        console.log("Impossible d'envoyer un message privé à l'utilisateur.");
-                    });
+                    message.channel.send("La convocation a bien été envoyée.")
                 });
             } else {
                 message.channel.send("Vous n'avez pas la permission d'utiliser cette commande.");
