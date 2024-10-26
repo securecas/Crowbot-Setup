@@ -2,7 +2,6 @@ const Discord = require("discord.js");
 const db = require("quick.db");
 const owner = new db.table("Owner");
 const cl = new db.table("Color");
-const config = require("../config.js");
 const footer = config.app.footer;
 
 module.exports = {
