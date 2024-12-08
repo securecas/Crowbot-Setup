@@ -11,7 +11,7 @@ module.exports = {
         }
 
         // Vérification des arguments
-        if (!args[0] || !args[1] || !args[2] || !args[3]) {
+        if (args.length < 4) {
             return message.channel.send("Usage : `+convocation ID_utilisateur date heure lieu`");
         }
 
@@ -33,25 +33,30 @@ module.exports = {
             return message.channel.send(`Aucun utilisateur trouvé pour \`${userID}\``);
         }
 
-        // Création de l'embed de convocation
-        const convocationEmbed = new Discord.MessageEmbed()
-            .setTitle('📋 Convocation Officielle')
-            .setColor('#ffcc00')
-            .addField('👤 Convoqué(e)', `<@${user.id}>`)
-            .addField('📅 Date', date, true)
-            .addField('⏰ Heure', time, true)
-            .addField('📍 Lieu', location)
-            .setFooter(`Convocation envoyée par ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
+        // Création de l'embed avec une approche alternative
+        const convocationEmbed = new Discord.MessageEmbed();
+        convocationEmbed.setTitle('📋 Convocation Officielle');
+        convocationEmbed.setColor('#00aaff');
+        convocationEmbed.addFields(
+            { name: '👤 Convoqué(e)', value: `${user.tag}`, inline: true },
+            { name: '📅 Date', value: date, inline: true },
+            { name: '⏰ Heure', value: time, inline: true },
+            { name: '📍 Lieu', value: location }
+        );
+        convocationEmbed.setFooter({
+            text: `Convocation envoyée par ${message.author.tag}`,
+            iconURL: message.author.displayAvatarURL({ dynamic: true }),
+        });
 
         try {
-            // Envoyer la convocation dans le salon avec une mention
+            // Envoyer la mention et l'embed
             await message.channel.send({
-                content: `<@${user.id}>`, // Mention de l'utilisateur
-                embeds: [convocationEmbed] // Embed contenant les détails
+                content: `<@${user.id}>`, // Mentionner l'utilisateur
+                embeds: [convocationEmbed], // Envoyer l'embed
             });
         } catch (err) {
             console.error(err);
             message.channel.send("Une erreur est survenue lors de l'envoi de la convocation.");
         }
-    }
+    },
 };
