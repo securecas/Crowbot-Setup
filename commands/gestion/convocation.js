@@ -44,12 +44,14 @@ module.exports = {
             .setFooter(`Convocation envoyée par ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
         try {
-            // Envoi de l'embed en MP à l'utilisateur
-            await user.send({ embeds: [convocationEmbed] });
-            message.channel.send(`La convocation a été envoyée à <@${user.id}>.`);
+            // Envoyer la convocation dans le salon avec une mention
+            await message.channel.send({
+                content: `<@${user.id}>`, // Mention de l'utilisateur
+                embeds: [convocationEmbed] // Embed contenant les détails
+            });
         } catch (err) {
             console.error(err);
-            message.channel.send(`Je n'ai pas pu envoyer la convocation à <@${user.id}>.`);
+            message.channel.send(`Je n'ai pas pu envoyer la convocation à <@${user.id}> dans ce salon.`);
         }
     }
 };
