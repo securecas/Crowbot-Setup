@@ -51,7 +51,7 @@ module.exports = {
             });
         } catch (err) {
             console.error(err);
-            message.channel.send(`Je n'ai pas pu envoyer la convocation à <@${user.id}> dans ce salon.`);
+            message.channel.send("Une erreur est survenue lors de l'envoi de la convocation.");
         }
     }
 };
