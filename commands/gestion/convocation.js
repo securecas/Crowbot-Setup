@@ -33,30 +33,25 @@ module.exports = {
             return message.channel.send(`Aucun utilisateur trouvé pour \`${userID}\``);
         }
 
-        // Création de l'embed avec une approche alternative
-        const convocationEmbed = new Discord.MessageEmbed();
-        convocationEmbed.setTitle('📋 Convocation Officielle');
-        convocationEmbed.setColor('#00aaff');
-        convocationEmbed.addFields(
-            { name: '👤 Convoqué(e)', value: `${user.tag}`, inline: true },
-            { name: '📅 Date', value: date, inline: true },
-            { name: '⏰ Heure', value: time, inline: true },
-            { name: '📍 Lieu', value: location }
-        );
-        convocationEmbed.setFooter({
-            text: `Convocation envoyée par ${message.author.tag}`,
-            iconURL: message.author.displayAvatarURL({ dynamic: true }),
-        });
+        // Création de l'embed de convocation
+        const convocationEmbed = new Discord.MessageEmbed()
+            .setTitle('📋 Convocation Officielle')
+            .setColor('#00aaff')
+            .addField('👤 Convoqué(e)', `${user.tag}`, true)
+            .addField('📅 Date', date, true)
+            .addField('⏰ Heure', time, true)
+            .addField('📍 Lieu', location)
+            .setFooter(`Convocation envoyée par ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
 
         try {
-            // Envoyer la mention et l'embed
+            // Envoi du message avec mention de l'utilisateur et embed
             await message.channel.send({
-                content: `<@${user.id}>`, // Mentionner l'utilisateur
-                embeds: [convocationEmbed], // Envoyer l'embed
+                content: `<@${user.id}>`,
+                embeds: [convocationEmbed]
             });
         } catch (err) {
             console.error(err);
             message.channel.send("Une erreur est survenue lors de l'envoi de la convocation.");
         }
-    },
+    }
 };
