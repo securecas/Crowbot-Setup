@@ -3,19 +3,16 @@ const db = require('quick.db');
 
 module.exports = {
     name: 'convocation',
-    aliases: ['rendezvous', 'rdv'],
+    aliases: ['rdv', 'rendezvous'],
     run: async (client, message, args) => {
-        // Vérification des permissions
         if (!client.config.owner.includes(message.author.id) && db.get(`ownermd_${client.user.id}_${message.author.id}`) !== true) {
             return message.channel.send("Vous n'avez pas les permissions pour exécuter cette commande.");
         }
 
-        // Vérification des arguments
         if (args.length < 4) {
             return message.channel.send("Usage : `+convocation ID_utilisateur date heure lieu`");
         }
 
-        // Récupération des informations
         const userID = args[0];
         const date = args[1];
         const time = args[2];
@@ -23,7 +20,6 @@ module.exports = {
 
         let user;
         try {
-            // Récupérer l'utilisateur par ID
             user = await client.users.fetch(userID);
         } catch (err) {
             return message.channel.send(`Aucun utilisateur trouvé pour \`${userID}\``);
@@ -35,16 +31,17 @@ module.exports = {
 
         // Création de l'embed de convocation
         const convocationEmbed = new Discord.MessageEmbed()
-            .setTitle('📋 Convocation Officielle')
-            .setColor('#00aaff')
-            .addField('👤 Convoqué(e)', `${user.tag}`, true)
-            .addField('📅 Date', date, true)
-            .addField('⏰ Heure', time, true)
-            .addField('📍 Lieu', location)
-            .setFooter(`Convocation envoyée par ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }));
+            .setColor('#0099ff') // Couleur personnalisée pour l'embed
+            .setTitle('Convocation')
+            .setThumbnail(message.client.user.displayAvatarURL()) // Icône avec l'avatar du bot
+            .addField('Utilisateur', `<@${user.id}>`, true) // Ping utilisateur sans embed
+            .addField('Date', date, true)
+            .addField('Heure', time, true)
+            .addField('Lieu', location)
+            .setFooter(`Demandé par ${message.author.tag}`, message.author.displayAvatarURL())
+            .setTimestamp();
 
         try {
-            // Envoi du message avec mention de l'utilisateur et embed
             await message.channel.send({
                 content: `<@${user.id}>`,
                 embeds: [convocationEmbed]
